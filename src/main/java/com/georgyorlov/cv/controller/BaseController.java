@@ -38,10 +38,10 @@ public class BaseController {
     }
 
     @GetMapping("/")
-    public String index(@RequestHeader("accept-language") String acceptedLang,
+    public String index(@RequestHeader(HttpHeaders.ACCEPT_LANGUAGE) String acceptedLang,
                         HttpServletRequest req) throws IOException {
         //log requests
-        logger.info("GET / from %s. User-Agent: %s".formatted(req.getRemoteAddr(), req.getHeader(HttpHeaders.USER_AGENT)));
+        logger.info("GET / from %s. User-Agent: %s. locale: %s".formatted(req.getRemoteAddr(), req.getHeader(HttpHeaders.USER_AGENT), acceptedLang));
         String preferredLanguage = baseService.parseLanguageFromHeader(acceptedLang);
         return baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(preferredLanguage), "html");
     }

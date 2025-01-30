@@ -4,3 +4,5 @@ TODO:
 - add controller advice
 - add caching
 - add readme =/ and instructions how to
+- add html(css) for mobile
+- fix routes in docker compose
