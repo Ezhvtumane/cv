@@ -35,6 +35,7 @@ public class BaseService {
     }
 
     public InputStreamResource getPdf(String pdfContentInHtml, String fontName, String fontFamily) throws IOException {
+        logger.info("Getting pdf content");
         try (ByteArrayOutputStream outStream = new ByteArrayOutputStream()) {
             final Document w3cDoc = new W3CDom().fromJsoup(Jsoup.parse(pdfContentInHtml, StandardCharsets.UTF_8.name()));
 
@@ -51,6 +52,7 @@ public class BaseService {
     }
 
     public String getHtmlContentByDocType(LocaleProperties.LocaleSettings localeSettings, String documentTypePrefix) throws IOException {
+        logger.info("Getting content for document type {} and for locale {}", documentTypePrefix, localeSettings.getLocale());
         String htmlTemplate = Files.readString(ResourceUtils.getFile("/resources/%s/%s_template.html".formatted(documentTypePrefix, localeSettings.getLocale())).toPath(), StandardCharsets.UTF_8);
         return htmlTemplate.replace("${cv}", getCvTextHtml(localeSettings));
     }
