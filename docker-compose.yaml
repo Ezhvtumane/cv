@@ -1,0 +1,9 @@
+services:
+  cv:
+    image: georgyorlov.com/cv:latest
+    ports:
+      - 8080:8080
+    volumes:
+      - ./resources:/resources
+    env_file:
+      - cv.env

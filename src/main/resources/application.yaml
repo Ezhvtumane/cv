@@ -1,0 +1,9 @@
+locales:
+  langs: ${langs}
+  links: ${links}
+  default-lang: ${DEFAULT_LANG}
+  default-link: ${DEFAULT_LINK}
+
+pdf:
+  filename: ${PDF_FILENAME} #orlov_georgii_java.pdf
+  fontname: ${PDF_FONTNAME} #PitagonSansMono-Light
