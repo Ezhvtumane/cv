@@ -3,7 +3,6 @@ package com.georgyorlov.cv.controller;
 import com.georgyorlov.cv.config.LocaleProperties;
 import com.georgyorlov.cv.config.PdfProperties;
 import com.georgyorlov.cv.service.BaseService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -39,24 +38,32 @@ public class BaseController {
 
     @GetMapping("/")
     public String index(@RequestHeader(HttpHeaders.ACCEPT_LANGUAGE) String acceptedLang,
-                        HttpServletRequest req) throws IOException {
+                        @RequestHeader("X-Real-IP") String xRealIp,
+                        @RequestHeader("X-Forwarded-For") String xForwardedFor,
+                        @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) throws IOException {
         //log requests
-        logger.info("GET / from %s. User-Agent: %s. locale: %s".formatted(req.getRemoteAddr(), req.getHeader(HttpHeaders.USER_AGENT), acceptedLang));
+        logger.info("GET / from %s %s. User-Agent: %s. locale: %s".formatted(xRealIp, xForwardedFor, userAgent, acceptedLang));
         String preferredLanguage = baseService.parseLanguageFromHeader(acceptedLang);
         return baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(preferredLanguage), "html");
     }
 
     @GetMapping("/{locale}")
-    public String indexRu(@PathVariable("locale") String locale, HttpServletRequest req) throws IOException {
+    public String indexRu(@PathVariable("locale") String locale,
+                          @RequestHeader("X-Real-IP") String xRealIp,
+                          @RequestHeader("X-Forwarded-For") String xForwardedFor,
+                          @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) throws IOException {
         //log requests
-        logger.info("GET / from %s. User-Agent: %s".formatted(req.getRemoteAddr(), req.getHeader(HttpHeaders.USER_AGENT)));
+        logger.info("GET /%s from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
         return baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "html");//localeHandbook.getOrDefault(locale, localeHandbook.get("default"))
     }
 
     @GetMapping("/{locale}/download")
-    public ResponseEntity<Resource> download(@PathVariable("locale") String locale, HttpServletRequest req) throws IOException {
+    public ResponseEntity<Resource> download(@PathVariable("locale") String locale,
+                                             @RequestHeader("X-Real-IP") String xRealIp,
+                                             @RequestHeader("X-Forwarded-For") String xForwardedFor,
+                                             @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) throws IOException {
         //log requests
-        logger.info("GET /download from %s. User-Agent: %s".formatted(req.getRemoteAddr(), req.getHeader(HttpHeaders.USER_AGENT)));
+        logger.info("GET /%s/download from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
         String pdfContentInHtml = baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "pdf");//localeHandbook.getOrDefault(locale, localeHandbook.get("default"))
         InputStreamResource pdf = baseService.getPdf(pdfContentInHtml, pdfProperties.getFontName(), pdfProperties.getFontFamily());
         return ResponseEntity.ok()
