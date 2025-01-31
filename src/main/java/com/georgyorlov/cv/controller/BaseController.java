@@ -54,8 +54,8 @@ public class BaseController {
                                           @RequestHeader(value = "X-Forwarded-For", required = false) String xForwardedFor,
                                           @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) throws IOException {
         //log requests
+        logger.info("GET /%s from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
         if (baseService.validLocale(locale)) {
-            logger.info("GET /%s from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
             return ResponseEntity
                     .ok()
                     .body(baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "html"));
@@ -70,8 +70,8 @@ public class BaseController {
                                              @RequestHeader(value = "X-Forwarded-For", required = false) String xForwardedFor,
                                              @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) throws IOException {
         //log requests
+        logger.info("GET /%s/download from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
         if (baseService.validLocale(locale)) {
-            logger.info("GET /%s/download from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
             String pdfContentInHtml = baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "pdf");//localeHandbook.getOrDefault(locale, localeHandbook.get("default"))
             InputStreamResource pdf = baseService.getPdf(pdfContentInHtml, pdfProperties.getFontName(), pdfProperties.getFontFamily());
             return ResponseEntity.ok()
