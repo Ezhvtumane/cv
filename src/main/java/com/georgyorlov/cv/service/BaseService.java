@@ -1,5 +1,6 @@
 package com.georgyorlov.cv.service;
 
+import com.georgyorlov.cv.config.CvAppProperties;
 import com.georgyorlov.cv.config.LocaleProperties;
 import com.github.rjeschke.txtmark.Processor;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
@@ -23,8 +24,16 @@ import java.util.Locale;
 @Service
 public class BaseService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
     Logger logger = LoggerFactory.getLogger(BaseService.class);
+
+    private final RestTemplate restTemplate;
+
+    private final CvAppProperties cvAppProperties;
+
+    public BaseService(CvAppProperties cvAppProperties) {
+        this.cvAppProperties = cvAppProperties;
+        this.restTemplate = new RestTemplate();
+    }
 
     public String parseLanguageFromHeader(String header) {
         return Locale.LanguageRange
@@ -46,7 +55,7 @@ public class BaseService {
             final PdfRendererBuilder pdfBuilder = new PdfRendererBuilder();
             pdfBuilder.useFastMode();
             pdfBuilder.withW3cDocument(w3cDoc, "/");
-            pdfBuilder.useFont(ResourceUtils.getFile("/resources/fonts/%s.ttf".formatted(fontName)), fontFamily);
+            pdfBuilder.useFont(ResourceUtils.getFile("%s/fonts/%s.ttf".formatted(cvAppProperties.getResourcesPath(), fontName)), fontFamily);
             pdfBuilder.toStream(outStream);
 
             pdfBuilder.run();
@@ -57,7 +66,7 @@ public class BaseService {
 
     public String getHtmlContentByDocType(LocaleProperties.LocaleSettings localeSettings, String documentTypePrefix) throws IOException {
         logger.info("Getting content for document type {} and for locale {}", documentTypePrefix, localeSettings.getLocale());
-        String htmlTemplate = Files.readString(ResourceUtils.getFile("/resources/%s/%s_template.html".formatted(documentTypePrefix, localeSettings.getLocale())).toPath(), StandardCharsets.UTF_8);
+        String htmlTemplate = Files.readString(ResourceUtils.getFile("%s/%s/%s_template.html".formatted(cvAppProperties.getResourcesPath(), documentTypePrefix, localeSettings.getLocale())).toPath(), StandardCharsets.UTF_8);
         return htmlTemplate.replace("${cv}", getCvTextHtml(localeSettings));
     }
 
@@ -71,7 +80,7 @@ public class BaseService {
             return restTemplate.getForObject(localeSettings.getLink(), String.class);
         } catch (Exception ex) {
             logger.error("Error downloading CV template", ex);
-            return Files.readString(ResourceUtils.getFile("/resources/backup/base-%s-CV-template.md".formatted(localeSettings.getLocale())).toPath());
+            return Files.readString(ResourceUtils.getFile("%s/backup/base-%s-CV-template.md".formatted(cvAppProperties.getResourcesPath(), localeSettings.getLocale())).toPath());
         }
     }
 
