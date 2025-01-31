@@ -38,9 +38,10 @@ public class BaseController {
 
     @GetMapping("/")
     public String index(@RequestHeader(HttpHeaders.ACCEPT_LANGUAGE) String acceptedLang,
-                        @RequestHeader("X-Real-IP") String xRealIp,
-                        @RequestHeader("X-Forwarded-For") String xForwardedFor,
+                        @RequestHeader(value = "X-Real-IP", required = false) String xRealIp,
+                        @RequestHeader(value = "X-Forwarded-For", required = false) String xForwardedFor,
                         @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) throws IOException {
+
         //log requests
         logger.info("GET / from %s %s. User-Agent: %s. locale: %s".formatted(xRealIp, xForwardedFor, userAgent, acceptedLang));
         String preferredLanguage = baseService.parseLanguageFromHeader(acceptedLang);
@@ -48,28 +49,39 @@ public class BaseController {
     }
 
     @GetMapping("/{locale}")
-    public String indexRu(@PathVariable("locale") String locale,
-                          @RequestHeader("X-Real-IP") String xRealIp,
-                          @RequestHeader("X-Forwarded-For") String xForwardedFor,
-                          @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) throws IOException {
+    public ResponseEntity<String> indexRu(@PathVariable("locale") String locale,
+                                          @RequestHeader(value = "X-Real-IP", required = false) String xRealIp,
+                                          @RequestHeader(value = "X-Forwarded-For", required = false) String xForwardedFor,
+                                          @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) throws IOException {
         //log requests
-        logger.info("GET /%s from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
-        return baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "html");//localeHandbook.getOrDefault(locale, localeHandbook.get("default"))
+        if (baseService.validLocale(locale)) {
+            logger.info("GET /%s from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
+            return ResponseEntity
+                    .ok()
+                    .body(baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "html"));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/{locale}/download")
     public ResponseEntity<Resource> download(@PathVariable("locale") String locale,
-                                             @RequestHeader("X-Real-IP") String xRealIp,
-                                             @RequestHeader("X-Forwarded-For") String xForwardedFor,
+                                             @RequestHeader(value = "X-Real-IP", required = false) String xRealIp,
+                                             @RequestHeader(value = "X-Forwarded-For", required = false) String xForwardedFor,
                                              @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) throws IOException {
         //log requests
-        logger.info("GET /%s/download from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
-        String pdfContentInHtml = baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "pdf");//localeHandbook.getOrDefault(locale, localeHandbook.get("default"))
-        InputStreamResource pdf = baseService.getPdf(pdfContentInHtml, pdfProperties.getFontName(), pdfProperties.getFontFamily());
-        return ResponseEntity.ok()
-                .headers(headers)
-                //.contentLength(pdf.contentLength())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(pdf);
+        if (baseService.validLocale(locale)) {
+            logger.info("GET /%s/download from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
+            String pdfContentInHtml = baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "pdf");//localeHandbook.getOrDefault(locale, localeHandbook.get("default"))
+            InputStreamResource pdf = baseService.getPdf(pdfContentInHtml, pdfProperties.getFontName(), pdfProperties.getFontFamily());
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    //.contentLength(pdf.contentLength())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(pdf);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+
     }
 }
