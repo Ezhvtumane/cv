@@ -50,7 +50,7 @@ jobs:
           path: target/
 
       - name: list files
-        run: ls -lah
+        run: ls -lah target/
 
       - uses: actions/checkout@v4
       - name: Build the Docker image
