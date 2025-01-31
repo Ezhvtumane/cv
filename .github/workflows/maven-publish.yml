@@ -49,6 +49,7 @@ jobs:
           name: cv-template-jar
           path: target/
 
+      - uses: actions/checkout@v4
       - name: list files
         run: ls -lah target/
 
