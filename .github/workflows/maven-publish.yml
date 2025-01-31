@@ -37,7 +37,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: cv-template-jar
-        path: /home/runner/work/cv/cv/target/cv-template-0.1.0-jar-with-dependencies.jar
+        path: target/
 
   use:
     runs-on: ubuntu-latest
@@ -47,7 +47,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: cv-template-jar
-          path: ${{ runner.temp }}/target
+          path: target/
 
       - uses: actions/checkout@v4
       - name: Build the Docker image
