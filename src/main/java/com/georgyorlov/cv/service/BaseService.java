@@ -34,6 +34,10 @@ public class BaseService {
                 .substring(0, 2);
     }
 
+    public boolean validLocale(String locale) {
+        return !locale.isEmpty() && locale.length() <= 3;
+    }
+
     public InputStreamResource getPdf(String pdfContentInHtml, String fontName, String fontFamily) throws IOException {
         logger.info("Getting pdf content");
         try (ByteArrayOutputStream outStream = new ByteArrayOutputStream()) {
