@@ -27,15 +27,17 @@ public class BaseService {
     Logger logger = LoggerFactory.getLogger(BaseService.class);
 
     private final RestTemplate restTemplate;
-
     private final CvAppProperties cvAppProperties;
+    private final LocaleProperties localeProperties;
 
-    public BaseService(CvAppProperties cvAppProperties) {
+
+    public BaseService(CvAppProperties cvAppProperties, LocaleProperties localeProperties) {
         this.cvAppProperties = cvAppProperties;
+        this.localeProperties = localeProperties;
         this.restTemplate = new RestTemplate();
     }
 
-    public String parseLanguageFromHeader(String header) {
+    public String parseLanguageFromHeader(String header) {//add null
         return Locale.LanguageRange
                 .parse(header)
                 .getFirst()
@@ -43,8 +45,14 @@ public class BaseService {
                 .substring(0, 2);
     }
 
-    public boolean validLocale(String locale) {
-        return !locale.isEmpty() && locale.length() <= 3;
+    public boolean isValidLocale(String locale) {
+        if (locale == null) return false;
+        if (locale.isEmpty()) return false;
+        if (locale.length() > 3) return false;
+
+        return localeProperties.getLangs()
+                .stream()
+                .anyMatch(locale::equals);
     }
 
     public InputStreamResource getPdf(String pdfContentInHtml, String fontName, String fontFamily) throws IOException {

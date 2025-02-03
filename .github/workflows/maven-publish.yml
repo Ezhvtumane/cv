@@ -36,27 +36,3 @@ jobs:
       #      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
       #      env:
       #        GITHUB_TOKEN: ${{ github.token }}
-
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: cv-template-jar
-        path: target/
-
-  use:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: cv-template-jar
-          path: target/
-
-      - uses: actions/checkout@v4
-      - name: list files
-        run: ls -lah
-
-      - uses: actions/checkout@v4
-      - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag georgy0rlov/cv-template:$(date +%s)

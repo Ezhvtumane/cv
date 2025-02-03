@@ -47,6 +47,10 @@ public class LocaleProperties {
         this.langs = langs;
     }
 
+    public List<String> getLangs() {
+        return this.langs;
+    }
+
     public void setLinks(List<String> links) {
         this.links = links;
     }
