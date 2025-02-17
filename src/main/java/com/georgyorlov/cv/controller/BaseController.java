@@ -37,10 +37,10 @@ public class BaseController {
     }
 
     @GetMapping("/")
-    public String index(@RequestHeader(HttpHeaders.ACCEPT_LANGUAGE) String acceptedLang,
+    public String index(@RequestHeader(value = HttpHeaders.ACCEPT_LANGUAGE, required = false) String acceptedLang,
                         @RequestHeader(value = "X-Real-IP", required = false) String xRealIp,
                         @RequestHeader(value = "X-Forwarded-For", required = false) String xForwardedFor,
-                        @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) throws IOException {
+                        @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) throws IOException {
 
         //log requests
         logger.info("GET / from %s %s. User-Agent: %s. locale: %s".formatted(xRealIp, xForwardedFor, userAgent, acceptedLang));
@@ -52,10 +52,10 @@ public class BaseController {
     public ResponseEntity<String> indexRu(@PathVariable("locale") String locale,
                                           @RequestHeader(value = "X-Real-IP", required = false) String xRealIp,
                                           @RequestHeader(value = "X-Forwarded-For", required = false) String xForwardedFor,
-                                          @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) throws IOException {
+                                          @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) throws IOException {
         //log requests
-        if (baseService.validLocale(locale)) {
-            logger.info("GET /%s from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
+        logger.info("GET /%s from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
+        if (baseService.isValidLocale(locale)) {
             return ResponseEntity
                     .ok()
                     .body(baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "html"));
@@ -68,11 +68,11 @@ public class BaseController {
     public ResponseEntity<Resource> download(@PathVariable("locale") String locale,
                                              @RequestHeader(value = "X-Real-IP", required = false) String xRealIp,
                                              @RequestHeader(value = "X-Forwarded-For", required = false) String xForwardedFor,
-                                             @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) throws IOException {
+                                             @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) throws IOException {
         //log requests
-        if (baseService.validLocale(locale)) {
-            logger.info("GET /%s/download from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
-            String pdfContentInHtml = baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "pdf");//localeHandbook.getOrDefault(locale, localeHandbook.get("default"))
+        logger.info("GET /%s/download from %s %s. User-Agent: %s".formatted(locale, xRealIp, xForwardedFor, userAgent));
+        if (baseService.isValidLocale(locale)) {
+            String pdfContentInHtml = baseService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "pdf");
             InputStreamResource pdf = baseService.getPdf(pdfContentInHtml, pdfProperties.getFontName(), pdfProperties.getFontFamily());
             return ResponseEntity.ok()
                     .headers(headers)
