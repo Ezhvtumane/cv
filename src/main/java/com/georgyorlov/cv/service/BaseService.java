@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Locale;
+import java.util.Optional;
 
 @Service
 public class BaseService {
@@ -37,12 +38,14 @@ public class BaseService {
         this.restTemplate = new RestTemplate();
     }
 
-    public String parseLanguageFromHeader(String header) {//add null
-        return Locale.LanguageRange
-                .parse(header)
-                .getFirst()
-                .getRange()
-                .substring(0, 2);
+    public String parseLanguageFromHeader(String header) {
+        return Optional.ofNullable(header).
+                map(h -> Locale.LanguageRange
+                        .parse(h)
+                        .getFirst()
+                        .getRange()
+                        .substring(0, 2))
+                .orElse("");
     }
 
     public boolean isValidLocale(String locale) {
