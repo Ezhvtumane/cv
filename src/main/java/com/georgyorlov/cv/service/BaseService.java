@@ -1,24 +1,15 @@
 package com.georgyorlov.cv.service;
 
-import com.georgyorlov.cv.config.CvAppProperties;
-import com.georgyorlov.cv.config.LocaleProperties;
-import com.github.rjeschke.txtmark.Processor;
-import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import org.jsoup.Jsoup;
-import org.jsoup.helper.W3CDom;
+import com.georgyorlov.cv.properties.LocaleProperties;
+import com.georgyorlov.cv.properties.PdfProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
-import org.springframework.web.client.RestTemplate;
-import org.w3c.dom.Document;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -27,18 +18,19 @@ public class BaseService {
 
     Logger logger = LoggerFactory.getLogger(BaseService.class);
 
-    private final RestTemplate restTemplate;
-    private final CvAppProperties cvAppProperties;
+    private final FileService fileService;
     private final LocaleProperties localeProperties;
+    private final PdfProperties pdfProperties;
 
-
-    public BaseService(CvAppProperties cvAppProperties, LocaleProperties localeProperties) {
-        this.cvAppProperties = cvAppProperties;
+    public BaseService(FileService fileService,
+                       LocaleProperties localeProperties,
+                       PdfProperties pdfProperties) {
+        this.fileService = fileService;
         this.localeProperties = localeProperties;
-        this.restTemplate = new RestTemplate();
+        this.pdfProperties = pdfProperties;
     }
 
-    public String parseLanguageFromHeader(String header) {
+    public static String parseLanguageFromHeader(String header) {
         return Optional.ofNullable(header).
                 map(h -> Locale.LanguageRange
                         .parse(h)
@@ -48,51 +40,23 @@ public class BaseService {
                 .orElse("");
     }
 
-    public boolean isValidLocale(String locale) {
-        if (locale == null) return false;
-        if (locale.isEmpty()) return false;
-        if (locale.length() > 3) return false;
-
-        return localeProperties.getLangs()
-                .stream()
-                .anyMatch(locale::equals);
+    public String getIndex(String acceptedLang) throws IOException {
+        return fileService.getHtmlContentByDocType(localeProperties.getLocaleSettings(parseLanguageFromHeader(acceptedLang)), "html");
     }
 
-    public InputStreamResource getPdf(String pdfContentInHtml, String fontName, String fontFamily) throws IOException {
-        logger.info("Getting pdf content");
-        try (ByteArrayOutputStream outStream = new ByteArrayOutputStream()) {
-            final Document w3cDoc = new W3CDom().fromJsoup(Jsoup.parse(pdfContentInHtml, StandardCharsets.UTF_8.name()));
-
-            final PdfRendererBuilder pdfBuilder = new PdfRendererBuilder();
-            pdfBuilder.useFastMode();
-            pdfBuilder.withW3cDocument(w3cDoc, "/");
-            pdfBuilder.useFont(ResourceUtils.getFile("%s/fonts/%s.ttf".formatted(cvAppProperties.getResourcesPath(), fontName)), fontFamily);
-            pdfBuilder.toStream(outStream);
-
-            pdfBuilder.run();
-
-            return new InputStreamResource(new ByteArrayInputStream(outStream.toByteArray()));
-        }
+    public String getIndexByLocale(String locale) throws IOException {
+        return fileService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "html");
     }
 
-    public String getHtmlContentByDocType(LocaleProperties.LocaleSettings localeSettings, String documentTypePrefix) throws IOException {
-        logger.info("Getting content for document type {} and for locale {}", documentTypePrefix, localeSettings.getLocale());
-        String htmlTemplate = Files.readString(ResourceUtils.getFile("%s/%s/%s_template.html".formatted(cvAppProperties.getResourcesPath(), documentTypePrefix, localeSettings.getLocale())).toPath(), StandardCharsets.UTF_8);
-        return htmlTemplate.replace("${cv}", getCvTextHtml(localeSettings));
+    @Cacheable("pdf")
+    public byte[] getPdfByLocale(String locale) throws IOException {
+        String pdfContentInHtml = fileService.getHtmlContentByDocType(localeProperties.getLocaleSettings(locale), "pdf");
+        return fileService.getPdf(pdfContentInHtml, pdfProperties.getFontName(), pdfProperties.getFontFamily());
     }
 
-    public String getCvTextHtml(LocaleProperties.LocaleSettings localeSettings) throws IOException {
-        String cvTextMd = getMdCvTemplateFromCloudOrGetBase(localeSettings);
-        return Processor.process(cvTextMd);
+    @CacheEvict(value = {"content", "pdf"}, allEntries = true)
+    @Scheduled(fixedRate = 86_400_000)//one per day
+    public void updateCvInCache() {
+        logger.info("Cache was evicted");
     }
-
-    public String getMdCvTemplateFromCloudOrGetBase(LocaleProperties.LocaleSettings localeSettings) throws IOException {
-        try {
-            return restTemplate.getForObject(localeSettings.getLink(), String.class);
-        } catch (Exception ex) {
-            logger.error("Error downloading CV template", ex);
-            return Files.readString(ResourceUtils.getFile("%s/backup/base-%s-CV-template.md".formatted(cvAppProperties.getResourcesPath(), localeSettings.getLocale())).toPath());
-        }
-    }
-
 }
