@@ -1,4 +1,4 @@
-package com.georgyorlov.cv.config;
+package com.georgyorlov.cv.properties;
 
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
