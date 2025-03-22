@@ -1,5 +1,6 @@
 package com.georgyorlov.cv.controller;
 
+import com.georgyorlov.cv.properties.CvAppProperties;
 import com.georgyorlov.cv.properties.LocaleProperties;
 import com.georgyorlov.cv.properties.PdfProperties;
 import com.georgyorlov.cv.service.BaseService;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,19 +19,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URI;
 
 @RestController
 public class BaseController {
 
     private final LocaleProperties localeProperties;
+    private final CvAppProperties cvAppProperties;
     private final BaseService baseService;
     private final HttpHeaders headers;
     Logger logger = LoggerFactory.getLogger(BaseController.class);
 
     public BaseController(LocaleProperties localeProperties,
                           PdfProperties pdfProperties,
+                          CvAppProperties cvAppProperties,
                           BaseService baseService) {
         this.localeProperties = localeProperties;
+        this.cvAppProperties = cvAppProperties;
         this.baseService = baseService;
         headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=%s".formatted(pdfProperties.getFileName()));
@@ -42,6 +48,14 @@ public class BaseController {
                                         @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) throws IOException {
         logger.info("GET / from %s %s. User-Agent: %s. locale: %s".formatted(xRealIp, xForwardedFor, userAgent, acceptedLang));
         return ResponseEntity.ok(baseService.getIndex(acceptedLang));
+    }
+
+    @GetMapping("/from={from}")
+    public ResponseEntity<String> from(@PathVariable("from") String from) throws IOException {
+        logger.info("GET /from=%s".formatted(from));
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(cvAppProperties.getMainUrl()))
+                .build();
     }
 
     @GetMapping("/{locale}")
@@ -78,7 +92,7 @@ public class BaseController {
     }
 
     @GetMapping("/update-cv")
-    public ResponseEntity<Object> updateCvInCache() {
+    public ResponseEntity<Void> updateCvInCache() {
         baseService.updateCvInCache();
         return ResponseEntity.ok().build();
     }

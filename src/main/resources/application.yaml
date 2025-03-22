@@ -1,5 +1,6 @@
 cv-app:
   resources-path: ${APP_RESOURCE_PATH}
+  main-url: ${APP_MAIN_URL}
 
 pdf:
   filename: ${PDF_FILENAME}
