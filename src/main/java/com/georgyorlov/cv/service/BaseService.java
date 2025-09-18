@@ -86,12 +86,6 @@ public class BaseService {
     }
 
     public ResponseEntity<byte[]> getFavicon() {
-        try {
-            Path path = ResourceUtils.getFile("classpath:favicon.ico").toPath();
-            byte[] bytes = Files.readAllBytes(path);
-            return ResponseEntity.ok(bytes);
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        return fileService.getFavicon();
     }
 }

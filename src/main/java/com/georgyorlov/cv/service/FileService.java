@@ -9,6 +9,7 @@ import org.jsoup.helper.W3CDom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
@@ -18,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Service
 public class FileService {
@@ -68,6 +70,16 @@ public class FileService {
         } catch (Exception ex) {
             logger.error("Error downloading CV template", ex);
             return Files.readString(ResourceUtils.getFile("%s/backup/base-%s-CV-template.md".formatted(cvAppProperties.getResourcesPath(), localeSettings.getLocale())).toPath());
+        }
+    }
+
+    public ResponseEntity<byte[]> getFavicon() {
+        try {
+            Path path = ResourceUtils.getFile("%s/favicon.ico".formatted(cvAppProperties.getResourcesPath())).toPath();
+            byte[] bytes = Files.readAllBytes(path);
+            return ResponseEntity.ok(bytes);
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 }
