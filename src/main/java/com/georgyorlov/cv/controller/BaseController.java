@@ -12,14 +12,21 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Random;
 
 @RestController
 public class BaseController {
@@ -58,6 +65,15 @@ public class BaseController {
                 .build();
     }
 
+    @GetMapping("/favicon.ico")
+    public ResponseEntity<byte[]> getFavicon(@RequestHeader(value = HttpHeaders.ACCEPT_LANGUAGE, required = false) String acceptedLang,
+                                             @RequestHeader(value = "X-Real-IP", required = false) String xRealIp,
+                                             @RequestHeader(value = "X-Forwarded-For", required = false) String xForwardedFor,
+                                             @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
+        logger.info("GET /favicon from %s %s. User-Agent: %s. locale: %s".formatted(xRealIp, xForwardedFor, userAgent, acceptedLang));
+        return baseService.getFavicon();
+    }
+
     @GetMapping("/{locale}")
     public ResponseEntity<String> indexRu(@PathVariable("locale") String locale,
                                           @RequestHeader(value = "X-Real-IP", required = false) String xRealIp,
@@ -69,7 +85,7 @@ public class BaseController {
                     .ok()
                     .body(baseService.getIndexByLocale(locale));
         } else {
-            return ResponseEntity.notFound().build();
+            return baseService.getNotFoundOrRandom();
         }
     }
 
