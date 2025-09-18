@@ -1,8 +1,8 @@
 # GEORGII ORLOV Java Dev
 
-[Telegram](https://t.me/Ezh_v_tumane_ke) | [orlov.g.s@yandex.ru](mailto:orlov.g.s@yandex.ru) | [LinkedIn](https://www.linkedin.com/in/georgy-orlov-b25b1778/) | [StackOverflow](https://stackoverflow.com/users/9013930) | [GitHub](https://github.com/Ezhvtumane)
+[Telegram](https://t.me/Ezh_v_tumane_ke) | [orlov.g.s@outlook.com](mailto:orlov.g.s@outlook.com) | [LinkedIn](https://www.linkedin.com/in/georgy-orlov-b25b1778/) | [StackOverflow](https://stackoverflow.com/users/9013930) | [GitHub](https://github.com/Ezhvtumane)
 
-Professional backend developer with 7+ years of experience in Java and Kotlin, DevOps tools, and UGC mobile apps in
+Professional backend developer with 8+ years of experience in Java and Kotlin, DevOps tools, and UGC mobile apps in
 fintech companies. Bread-minded technical specialist with strong knowledge of data networks, SQL, and databases. Like a
 leader managed the integration work with 3rd party service and the project team. Prefer to take a complex approach to
 tasks and workflow, delve into the essence of the task and try to find the optimal solution before starting to write the
@@ -16,7 +16,7 @@ Git, Nexus, Jenkins, Linux.
 
 ### Career history:
 
-### Surf.dev, Java Backend Developer (outsource). 2023-02 …
+### Surf.dev, Java Backend Developer (outsource). 2023-02 2024-04
 
 Key projects:
 

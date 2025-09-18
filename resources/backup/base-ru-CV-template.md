@@ -2,7 +2,7 @@
 
 [Telegram](https://t.me/Ezh_v_tumane_ke) | [orlov.g.s@yandex.ru](mailto:orlov.g.s@yandex.ru) | [LinkedIn](https://www.linkedin.com/in/georgy-orlov-b25b1778/) | [StackOverflow](https://stackoverflow.com/users/9013930) | [GitHub](https://github.com/Ezhvtumane)
 
-Профессионально занимаюсь разработкой на java/kotlin более 7 лет(в основном на java конечно). Я работал над DevOps
+Профессионально занимаюсь разработкой на java/kotlin более 8 лет(в основном на java конечно). Я работал над DevOps
 инструментом и бекендами для мобильных приложений (UGC, аренда самокатов, перевод денежных средств) в том числе в финтех
 компаниях. У меня широкий технический кругозор. Я комплексно подхожу к задачам и рабочему процессу, вникаю в суть задачи
 и стараюсь найти оптимальное решение, прежде чем непосредственно выполнять ее. Мне нравится писать код и разбираться в
@@ -16,7 +16,7 @@ Git, Nexus, Jenkins, Linux.
 
 ### Карьера:
 
-### Surf.dev, Java Backend Developer (outsource). 2023-02 …
+### Surf.dev, Java Backend Developer (outsource). 2023-02 2024-04
 
 Участвовал в нескольких проектах:
 
