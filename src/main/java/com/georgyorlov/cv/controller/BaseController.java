@@ -1,5 +1,6 @@
 package com.georgyorlov.cv.controller;
 
+import com.georgyorlov.cv.properties.CvAppProperties;
 import com.georgyorlov.cv.properties.LocaleProperties;
 import com.georgyorlov.cv.properties.PdfProperties;
 import com.georgyorlov.cv.service.BaseService;
@@ -8,28 +9,40 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Random;
 
 @RestController
 public class BaseController {
 
     private final LocaleProperties localeProperties;
+    private final CvAppProperties cvAppProperties;
     private final BaseService baseService;
     private final HttpHeaders headers;
     Logger logger = LoggerFactory.getLogger(BaseController.class);
 
     public BaseController(LocaleProperties localeProperties,
                           PdfProperties pdfProperties,
+                          CvAppProperties cvAppProperties,
                           BaseService baseService) {
         this.localeProperties = localeProperties;
+        this.cvAppProperties = cvAppProperties;
         this.baseService = baseService;
         headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=%s".formatted(pdfProperties.getFileName()));
@@ -44,6 +57,23 @@ public class BaseController {
         return ResponseEntity.ok(baseService.getIndex(acceptedLang));
     }
 
+    @GetMapping("/from={from}")
+    public ResponseEntity<String> from(@PathVariable("from") String from) throws IOException {
+        logger.info("GET /from=%s".formatted(from));
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(cvAppProperties.getMainUrl()))
+                .build();
+    }
+
+    @GetMapping("/favicon.ico")
+    public ResponseEntity<byte[]> getFavicon(@RequestHeader(value = HttpHeaders.ACCEPT_LANGUAGE, required = false) String acceptedLang,
+                                             @RequestHeader(value = "X-Real-IP", required = false) String xRealIp,
+                                             @RequestHeader(value = "X-Forwarded-For", required = false) String xForwardedFor,
+                                             @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
+        logger.info("GET /favicon from %s %s. User-Agent: %s. locale: %s".formatted(xRealIp, xForwardedFor, userAgent, acceptedLang));
+        return baseService.getFavicon();
+    }
+
     @GetMapping("/{locale}")
     public ResponseEntity<String> indexRu(@PathVariable("locale") String locale,
                                           @RequestHeader(value = "X-Real-IP", required = false) String xRealIp,
@@ -55,7 +85,7 @@ public class BaseController {
                     .ok()
                     .body(baseService.getIndexByLocale(locale));
         } else {
-            return ResponseEntity.notFound().build();
+            return baseService.getNotFoundOrRandom();
         }
     }
 
@@ -78,7 +108,7 @@ public class BaseController {
     }
 
     @GetMapping("/update-cv")
-    public ResponseEntity<Object> updateCvInCache() {
+    public ResponseEntity<Void> updateCvInCache() {
         baseService.updateCvInCache();
         return ResponseEntity.ok().build();
     }

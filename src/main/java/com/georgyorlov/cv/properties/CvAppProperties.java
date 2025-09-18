@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class CvAppProperties {
 
     private String resourcesPath;
+    private String mainUrl;
 
     public String getResourcesPath() {
         return resourcesPath;
@@ -15,5 +16,13 @@ public class CvAppProperties {
 
     public void setResourcesPath(String resourcesPath) {
         this.resourcesPath = resourcesPath;
+    }
+
+    public String getMainUrl() {
+        return mainUrl;
+    }
+
+    public void setMainUrl(String mainUrl) {
+        this.mainUrl = mainUrl;
     }
 }

@@ -1,5 +1,6 @@
 cv-app:
   resources-path: ${APP_RESOURCE_PATH}
+  main-url: ${APP_MAIN_URL}
 
 pdf:
   filename: ${PDF_FILENAME}
@@ -10,3 +11,6 @@ locales:
   links: ${links}
   default-lang: ${DEFAULT_LANG}
   default-link: ${DEFAULT_LINK}
+
+not-found:
+  site: ${NOT_FOUND_SITE}

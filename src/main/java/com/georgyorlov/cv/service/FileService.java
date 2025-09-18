@@ -52,7 +52,9 @@ public class FileService {
     public String getHtmlContentByDocType(LocaleProperties.LocaleSettings localeSettings, String documentTypePrefix) throws IOException {
         logger.info("Getting content for document type {} and for locale {}", documentTypePrefix, localeSettings.getLocale());
         String htmlTemplate = Files.readString(ResourceUtils.getFile("%s/%s/%s_template.html".formatted(cvAppProperties.getResourcesPath(), documentTypePrefix, localeSettings.getLocale())).toPath(), StandardCharsets.UTF_8);
-        return htmlTemplate.replace("${cv}", getCvTextHtml(localeSettings));
+        return htmlTemplate
+                .replace("${mainDomain}", cvAppProperties.getMainUrl())
+                .replace("${cv}", getCvTextHtml(localeSettings));
     }
 
     public String getCvTextHtml(LocaleProperties.LocaleSettings localeSettings) throws IOException {
